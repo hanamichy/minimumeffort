@@ -1,1 +1,648 @@
-YouTube Watch History
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Watch History — Chrome Extension</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:       #ff2d20;
+      --red-dim:   #c41f14;
+      --gold:      #ffd700;
+      --bg:        #080808;
+      --bg-2:      #111111;
+      --bg-3:      #1a1a1a;
+      --border:    #222222;
+      --text:      #f0f0f0;
+      --text-dim:  #888888;
+      --text-mute: #444444;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    /* ── Glow blob ── */
+    .glow {
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(255,45,32,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    nav.scrolled {
+      background: rgba(8,8,8,0.92);
+      border-color: var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--red);
+    }
+
+    .nav-logo-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 1.5px;
+      color: var(--text);
+    }
+
+    .nav-link {
+      font-size: 13px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover { color: var(--text); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--red);
+      border: 1px solid rgba(255,45,32,0.3);
+      border-radius: 2px;
+      padding: 6px 14px;
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.1s forwards;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 12vw, 140px);
+      line-height: 0.9;
+      letter-spacing: 2px;
+      color: var(--text);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.2s forwards;
+    }
+
+    .hero-title span {
+      color: var(--red);
+      display: block;
+    }
+
+    .hero-desc {
+      font-size: 16px;
+      color: var(--text-dim);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.35s forwards;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.5s forwards;
+    }
+
+    .btn-pro {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background-color: #FFA600;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 16px 36px;
+      border-radius: 3px;
+      letter-spacing: 0.3px;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 0 0 rgba(255,45,32,0.4);
+    }
+
+    .btn-pro:hover {
+      background: var(--red-dim);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255,45,32,0.3);
+    }
+
+    .btn-pro:active { transform: translateY(0); }
+
+    .btn-pro-price {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: rgba(255,255,255,0.15);
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
+
+    .hero-free-note {
+      font-size: 12px;
+      color: var(--text-mute);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Scroll indicator ── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-mute);
+      font-size: 11px;
+      letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.9s forwards;
+    }
+
+    .scroll-arrow {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--text-mute), transparent);
+      animation: scrollDown 1.5s ease-in-out infinite;
+    }
+
+    @keyframes scrollDown {
+      0%, 100% { transform: scaleY(1); opacity: 0.5; }
+      50% { transform: scaleY(1.3); opacity: 1; }
+    }
+
+    /* ── Features ── */
+    .features {
+      position: relative;
+      z-index: 1;
+      padding: 100px 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2px;
+    }
+
+    .feature-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      padding: 32px;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--red);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+      background: var(--bg-3);
+      border-color: #333;
+    }
+
+    .feature-card:hover::before {
+      transform: scaleX(1);
+    }
+
+
+    .feature-icon {
+      font-size: 24px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .feature-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .feature-badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(255,215,0,0.3);
+      padding: 2px 6px;
+      border-radius: 2px;
+      margin-top: 10px;
+    }
+
+    /* ── Pricing ── */
+    .pricing {
+      position: relative;
+      z-index: 1;
+      padding: 80px 24px 100px;
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .pricing-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--red), #ff6b35);
+    }
+
+    .pricing-tier {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 24px;
+    }
+
+    .pricing-amount {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 80px;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .pricing-amount sup {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 28px;
+      font-weight: 300;
+      vertical-align: super;
+    }
+
+    .pricing-once {
+      font-size: 12px;
+      color: var(--text-mute);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 1px;
+      margin-bottom: 36px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--red);
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* ── Disclaimer ── */
+    .disclaimer {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .disclaimer-box {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--text-mute);
+      padding: 24px 28px;
+      border-radius: 2px;
+    }
+
+    .disclaimer-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-mute);
+      margin-bottom: 10px;
+    }
+
+    .disclaimer-text {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-mute);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .footer-link {
+      font-size: 12px;
+      color: var(--text-mute);
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover { color: var(--text-dim); }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      nav { padding: 16px 24px; }
+      .pricing-card { padding: 32px 24px; }
+      footer { padding: 24px; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <a href="/" class="nav-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+        <path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"/>
+      </svg>
+      <span class="nav-logo-text">YouTube Watch History</span>
+    </a>
+    <a href="privacy.html" class="nav-link">Privacy Policy</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-eyebrow">Browser Extension</div>
+    <h1 class="hero-title">
+      YouTube<br/>
+      <span>Watch History</span>
+    </h1>
+    <p class="hero-desc">
+      Browse, search, and rediscover every video you've ever watched — all from your browser history, no account required.
+    </p>
+    <div class="hero-actions">
+      <a href="https://www.creem.io/payment/prod_3vAzmlwLxuH1AYbPc8wXDB" class="btn-pro">
+        ✦ Upgrade to Pro
+        <span class="btn-pro-price">One-time</span>
+      </a>
+      <span class="hero-free-note">Free version available</span>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="section-label">What's included</div>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <span class="feature-icon">📋</span>
+        <div class="feature-name">Full Watch History</div>
+        <p class="feature-desc">See every YouTube video you've watched in this browser, with thumbnails, titles, and timestamps.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">★</span>
+        <div class="feature-name">Favorites</div>
+        <p class="feature-desc">Star any video to save it to your favorites collection for quick access later.</p>
+        <span class="feature-badge">Pro</span>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">🔍</span>
+        <div class="feature-name">Search & Filter</div>
+        <p class="feature-desc">Instantly search through your entire watch history by title and filter by date range.</p>
+        <span class="feature-badge">Pro</span>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">↕️</span>
+        <div class="feature-name">Sort Controls</div>
+        <p class="feature-desc">Sort your history by most recent, most visited, or alphabetically.</p>
+        <span class="feature-badge">Pro</span>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">💾</span>
+        <div class="feature-name">Export History</div>
+        <p class="feature-desc">Download your complete watch history as a CSV or JSON file for your records.</p>
+        <span class="feature-badge">Pro</span>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">🔒</span>
+        <div class="feature-name">100% Private</div>
+        <p class="feature-desc">Everything stays in your browser. No accounts, no servers, no tracking — ever.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing">
+    <div class="section-label">Pricing</div>
+    <div class="pricing-card">
+      <div class="pricing-tier">Pro License</div>
+      <div class="pricing-amount"><sup>$</sup>5 USD</div>
+      <div class="pricing-once">One-time payment · Yours forever</div>
+      <ul class="pricing-features">
+        <li>Favorites collection &amp; management</li>
+        <li>Search by title and date range</li>
+        <li>Sort by recent, most viewed, or A–Z</li>
+        <li>Export history as CSV or JSON</li>
+        <li>All future Pro updates included</li>
+        <li>Instant license key delivery via email</li>
+      </ul>
+      <a href="https://www.creem.io/payment/prod_3vAzmlwLxuH1AYbPc8wXDB" class="btn-pro" style="width:100%; justify-content:center;">
+        ✦ Upgrade to Pro
+      </a>
+    </div>
+  </section>
+
+  <!-- Disclaimer -->
+  <section class="disclaimer">
+    <div class="disclaimer-box">
+      <div class="disclaimer-label">ⓘ Important note</div>
+      <p class="disclaimer-text">
+        YouTube Watch History reads directly from your browser's local history — it does not store, collect, or transmit any of your data to external servers. If you clear your browser history, all watch history will be lost and cannot be recovered. Videos you have added to your Favorites are stored locally in your browser's extension storage and will persist unless you manually remove them or uninstall the extension.
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <span class="footer-copy">© <script>document.write(new Date().getFullYear());</script> YouTube Watch History · Made with <a href="https://www.minimumeffort.ca" style="color:#525252;">minimum effort</a></span>
+    <a href="privacy.html" class="footer-link">Privacy Policy</a>
+  </footer>
+
+  <script>
+    // Sticky nav on scroll
+    const nav = document.getElementById("nav");
+    window.addEventListener("scroll", function () {
+      nav.classList.toggle("scrolled", window.scrollY > 40);
+    });
+  </script>
+
+</body>
+</html>
