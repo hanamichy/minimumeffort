@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — YouTube Watch History</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:       #ff2d20;
+      --bg:        #080808;
+      --bg-2:      #111111;
+      --bg-3:      #1a1a1a;
+      --border:    #222222;
+      --text:      #f0f0f0;
+      --text-dim:  #888888;
+      --text-mute: #444444;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--red);
+    }
+
+    .nav-logo-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 1.5px;
+      color: var(--text);
+    }
+
+    .nav-back {
+      font-size: 13px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      transition: color 0.2s;
+    }
+
+    .nav-back:hover { color: var(--text); }
+
+    /* ── Page ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 64px 24px 100px;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 8vw, 80px);
+      line-height: 0.95;
+      letter-spacing: 1px;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .page-meta {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .page-meta-item {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-mute);
+      letter-spacing: 1px;
+    }
+
+    .page-meta-item span {
+      color: var(--text-dim);
+    }
+
+    /* ── Content ── */
+    .policy-section {
+      margin-bottom: 48px;
+    }
+
+    .policy-section-number {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .policy-section h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .policy-section p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.85;
+      font-weight: 300;
+      margin-bottom: 14px;
+    }
+
+    .policy-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .policy-section ul {
+      list-style: none;
+      margin: 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .policy-section ul li {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      font-weight: 300;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .policy-section ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--text-mute);
+      font-size: 12px;
+    }
+
+    /* ── Warning box (liability) ── */
+    .warning-box {
+      background: #110a0a;
+      border: 1px solid #3a1a1a;
+      border-left: 3px solid var(--red);
+      padding: 24px 28px;
+      border-radius: 2px;
+      margin: 20px 0;
+    }
+
+    .warning-box p {
+      font-size: 13px;
+      color: #cc8888;
+      line-height: 1.8;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    /* ── Info box ── */
+    .info-box {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--text-mute);
+      padding: 24px 28px;
+      border-radius: 2px;
+      margin: 20px 0;
+    }
+
+    .info-box p {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    /* ── Divider ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    /* ── Contact ── */
+    .contact-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 28px;
+      margin-top: 16px;
+    }
+
+    .contact-card p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin-bottom: 12px;
+      font-weight: 300;
+    }
+
+    .contact-card a {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,45,32,0.3);
+      padding-bottom: 1px;
+      transition: border-color 0.2s;
+    }
+
+    .contact-card a:hover {
+      border-color: var(--red);
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-mute);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .footer-link {
+      font-size: 12px;
+      color: var(--text-mute);
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover { color: var(--text-dim); }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 24px; }
+      footer { padding: 24px; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+        <path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"/>
+      </svg>
+      <span class="nav-logo-text">YouTube Watch History</span>
+    </a>
+    <a href="/" class="nav-back">← Back to home</a>
+  </nav>
+
+  <div class="page">
+
+    <div class="page-header">
+      <div class="page-eyebrow">Legal</div>
+      <h1 class="page-title">Privacy Policy</h1>
+      <div class="page-meta">
+      
+       
+      </div>
+    </div>
+
+    <!-- 1. Overview -->
+    <div class="policy-section">
+      <div class="policy-section-number">01 — Overview</div>
+    <h2>Our Commitment to Your Privacy</h2>
+      <p>
+      YouTube Watch History ("the Extension") is a  browser extension developed and maintained by minimum effort ("we", "us", "our"), operating at minimumeffort.ca. We are committed to protecting your privacy. This Privacy Policy explains what data the Extension accesses, how it is used, and your rights as a user.</p>
+      <p>
+        By installing or using the Extension, you agree to the terms of this Privacy Policy. If you do not agree with any part of this policy, please uninstall the Extension immediately.
+      </p>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 2. Data We Access -->
+    <div class="policy-section">
+      <div class="policy-section-number">02 — Data Access</div>
+      <h2>What Data the Extension Accesses</h2>
+      <p>
+        The Extension reads your browser's local history solely to identify YouTube videos you have previously watched. Specifically, it accesses:
+      </p>
+      <ul>
+        <li>URLs from your browsing history that match the pattern <code>youtube.com/watch</code></li>
+        <li>Page titles associated with those URLs (video titles)</li>
+        <li>Visit timestamps and visit counts as recorded by your browser</li>
+        <li>Videos you manually add to Favorites, which are stored in local extension storage </li>
+      </ul>
+      <div class="info-box">
+        <p>All data access happens entirely within your browser on your device. No data is ever transmitted to, stored on, or processed by any external server, database, or third party — with the sole exception of license key validation described in Section 5.</p>
+      </div>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 3. Data We Do NOT Collect -->
+    <div class="policy-section">
+    <div class="policy-section-number">03 — Data We Do Not Collect</div>
+      <h2>We Do Not Collect</h2>
+      <p>We do not collect, store, transmit, or have access to any of the following:</p>
+      <ul>
+        <li>Your Google or YouTube account credentials or account data</li>
+        <li>Your full browsing history beyond YouTube watch URLs</li>
+        <li>Your IP address or geographic location</li>
+        <li>Device identifiers, hardware information, or operating system data</li>
+        <li>Cookies, tracking pixels, or fingerprinting data of any kind</li>
+        <li>Analytics, usage statistics, or behavioral data</li>
+        <li>Any data from websites other than youtube.com</li>
+      </ul>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 4. Local Storage -->
+    <div class="policy-section">
+      <div class="policy-section-number">04 — Local Storage</div>
+      <h2>How Data Is Stored</h2>
+      <p>
+        The Extension stores the following data locally on your device using built-in local storage. 
+      </p>
+      <ul>
+        <li>Your Favorites list (videos you have starred within the Extension)</li>
+        <li>Your Pro license key and activation status, if you have upgraded</li>
+        <li>Your preferred sort order setting</li>
+      </ul>
+      <p>
+        This data never leaves your device. It is not backed up to any cloud service, not accessible to us, and not shared with any third party. You can clear this data at any time by removing the Extension.
+      </p>
+      <div class="info-box">
+        <p>Important: If you clear your browser history, all YouTube watch history displayed in the Extension will be permanently lost, as the Extension reads directly from browser history. Favorited videos stored in extension storage will not be affected by clearing browser history, but will be lost if you uninstall the Extension.</p>
+      </div>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 5. License Validation -->
+    <div class="policy-section">
+      <div class="policy-section-number">05 — License Validation</div>
+      <h2>Pro License Key Validation</h2>
+      <p>
+        If you purchase a Pro license, the Extension sends your license key to a secure validation server operated by us via Cloudflare Workers for the sole purpose of verifying the validity of your license. During this process:
+      </p>
+      <ul>
+        <li>Only your license key string is transmitted — no personal data, no browsing data</li>
+        <li>The validation request is processed by Creem.io, our payment and licensing provider</li>
+        <li>No record of your identity, device, or usage is stored by us as a result of this request</li>
+        <li>After successful validation, your activation status is stored locally on your device only</li>
+      </ul>
+      <p>
+        For Creem.io's own privacy practices, please refer to their privacy policy at <a href="https://creem.io" target="_blank" rel="noopener noreferrer" style="color: var(--red); text-decoration: none;">creem.io</a>.
+      </p>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 6. Third Parties -->
+    <div class="policy-section">
+      <div class="policy-section-number">06 — Third Parties</div>
+      <h2>Third-Party Services</h2>
+      <p>
+        The Extension displays video thumbnails loaded directly from YouTube's public image servers (<code>img.youtube.com</code>). This is a standard browser image request and does not transmit any personal information beyond what your browser normally sends with any web request (e.g. your IP address to YouTube's servers). We have no control over YouTube's data practices. Please refer to Google's Privacy Policy for information on how YouTube handles such requests.
+      </p>
+      <p>
+        We do not integrate any advertising networks, analytics services, crash reporting tools, or social media trackers into the Extension.
+      </p>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 7. Children -->
+    <div class="policy-section">
+      <div class="policy-section-number">07 — Children's Privacy</div>
+      <h2>Children Under 13</h2>
+      <p>
+        The Extension is not directed at children under the age of 13. We do not knowingly collect any personal information from children. Since the Extension does not collect personal information from any user, there is no special risk to children's privacy beyond what is described in this policy.
+      </p>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 8. Disclaimer & Liability -->
+    <div class="policy-section">
+      <div class="policy-section-number">08 — Disclaimer &amp; Limitation of Liability</div>
+      <h2>No Warranty &amp; Limitation of Liability</h2>
+      <p>
+        The Extension is provided "as is" and "as available" without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.
+      </p>
+    <div class="warning-box">
+        <p>
+          TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE CREATOR, DEVELOPER, AND OPERATOR OF THIS EXTENSION (MINIMUM EFFORT / MINIMUMEFFORT.CA) SHALL NOT BE HELD RESPONSIBLE OR LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF, OR INABILITY TO USE, THE EXTENSION. THIS INCLUDES BUT IS NOT LIMITED TO: LOSS OF DATA, LOSS OF BROWSER HISTORY, LOSS OF FAVORITED VIDEOS, SECURITY BREACHES OUTSIDE OUR CONTROL, OR ANY OTHER LOSSES OF ANY NATURE WHATSOEVER.
+        </p>
+      </div>
+      <p>
+      By using the Extension, you expressly agree that you will not hold minimum effort, its creator, or any affiliated parties liable for any claim, loss, or damage of any kind. You agree to waive any right to bring legal action, lawsuit, or claim of any kind against the creator of this Extension in any jurisdiction.
+    </p>
+      <p>
+        If you do not agree to this limitation of liability, you must immediately discontinue use of the Extension and uninstall it from your browser.
+      </p>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 9. Data Loss -->
+  <div class="policy-section">
+      <div class="policy-section-number">09 — Data Loss</div>
+      <h2>No Responsibility for Data Loss</h2>
+  <p>
+        We are not responsible for any loss of watch history or favorited videos resulting from:
+    </p>
+      <ul>
+        <li>Clearing your browser history or cache</li>
+        <li>Uninstalling the Extension</li>
+        <li>Reinstalling  or resetting your browser</li>
+        <li>Hardware failure, operating system issues, or any other technical event</li>
+        <li>Updates or changes to browser extension storage APIs</li>
+      </ul>
+    <p>
+  We strongly recommend exporting your history using the built-in Export feature (Pro) if you wish to retain a backup. However, this backup cannot be re-imported back into the Extension. </p>
+  </div>
+
+    <hr class="section-divider" />
+
+    <!-- 10. Changes -->
+    <div class="policy-section">
+      <div class="policy-section-number">10 — Changes to This Policy</div>
+    <h2>Policy Updates</h2>
+      <p>
+      We reserve the right to update or modify this Privacy Policy at any time.  Your continued use of the Extension after any changes constitutes your acceptance of the updated policy.
+    </p>
+      
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 11. Governing Law -->
+    <div class="policy-section">
+      <div class="policy-section-number">11 — Governing Law</div>
+      <h2>Jurisdiction &amp; Governing Law</h2>
+      <p>
+        This Privacy Policy and any disputes arising from it shall be governed by and construed in accordance with the laws of Canada, without regard to its conflict of law provisions. Any disputes that cannot be resolved informally shall be subject to the exclusive jurisdiction of the courts of Canada.
+      </p>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- 12. Contact -->
+    <div class="policy-section">
+      <div class="policy-section-number">12 — Contact</div>
+      <h2>Questions &amp; Concerns</h2>
+      <p>
+        If you have any questions, concerns, or requests regarding this Privacy Policy or the Extension's data practices, please contact us:
+      </p>
+      <div class="contact-card">
+        <p>YouTube Watch History is operated by minimum effort.</p>
+        <p>For all privacy-related inquiries, please email:</p>
+        <a href="mailto:hello@minimumeffort.ca">hello@minimumeffort.ca</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+   <span class="footer-copy">© <script>document.write(new Date().getFullYear());</script> YouTube Watch History · Made with <a href="https://www.minimumeffort.ca" style="color:#525252;">minimum effort</a></span>
+    <a href="/" class="footer-link">← Back to home</a>
+  </footer>
+
+</body>
+</html>
